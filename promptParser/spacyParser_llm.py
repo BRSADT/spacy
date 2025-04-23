@@ -17,16 +17,22 @@ class SpacyLLMPromptParser(PromptParser):
 
     def parse(self, prompt: str) -> dict:
 
-        prompt+= """
+        prompt += """Your task is to analyze the above prompt and return only a valid JSON object describing a chart.
 
-        Return only a valid JSON object in the following format:
-        {
-          "chart_type": "pie",
-          "data": {
-            "Cats": 30,
-            "Dogs": 70
-          }
-        }"""
+The response must follow this exact format:
+{{
+  "chart_type": "type_of_chart",       // e.g., "bar", "line", "pie", "scatter", etc.
+  "x_label": "label for x-axis",
+  "y_label": "label for y-axis",
+  "x": ["Label 1", "Label 2", ...],
+  "y": [Value1, Value2, ...],
+  "title": "Chart title"
+}}
+
+- Only return valid JSON.
+- Do not include explanations or text outside the JSON.
+- If the prompt does not provide explicit values, return an empty chart with label "Undefined".
+- Use an appropriate chart type inferred from the prompt context."""
 
         doc = self.nlp(prompt)
         llm_response = doc._.llm_reply
